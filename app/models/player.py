@@ -6,7 +6,7 @@ class Player:
     __user_id:str;
     __username: str = field(default_factory=lambda: f"Guest_{str(uuid4())}");
     __total_score: int = field(default_factory=lambda:0);
-    __score: int = field(init=False, default_factory=lambda:0);
+    __match_score: int = field(init=False, default_factory=lambda:0);
 
     @property
     def username(self)->str:
@@ -16,8 +16,12 @@ class Player:
     def user_id(self)->str:
         return self.__user_id;
 
+    @property
+    def match_score(self)->int:
+        return self.__match_score;
+
     def increment_score(self, increment:int):
-        self.__score+=int(increment);
+        self.__match_score+=int(increment);
 
     def pack(self)->dict:
         return {

@@ -62,11 +62,13 @@ class Game:
     def start_match(self, *players):
         if self.__current_match:
             return;
-        self.__current_match = Match(
+        match = Match(
             [*players],
             (2, 4),
             self.__match_dependencies
         ).start();
+        self.__current_match = match;
+        return match;
     
     def get_data(self, data_name:str)->StaticData|DynamicData|None:
         return self.__data.get(data_name);
