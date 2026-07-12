@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net">
   <diagram name="Page-1" id="O6mCpQ_lWsjEK-XlasFV">
-    <mxGraphModel dx="2429" dy="1464" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="2019" dy="1243" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -8,22 +8,22 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="eQeHEutrMqce5xfz2TAn-1" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="Player" vertex="1">
-          <mxGeometry height="130" width="300" x="440" y="10" as="geometry" />
+          <mxGeometry height="140" width="300" x="440" y="10" as="geometry" />
         </mxCell>
-        <mxCell id="eQeHEutrMqce5xfz2TAn-2" parent="eQeHEutrMqce5xfz2TAn-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="- user_id: str&lt;div&gt;- username: str&lt;/div&gt;&lt;div&gt;- score: int&lt;/div&gt;" vertex="1">
-          <mxGeometry height="54" width="300" y="26" as="geometry" />
+        <mxCell id="eQeHEutrMqce5xfz2TAn-2" parent="eQeHEutrMqce5xfz2TAn-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="- user_id: str&lt;div&gt;- username: str&lt;/div&gt;&lt;div&gt;- score: int&lt;/div&gt;&lt;div&gt;- total_score: int&lt;/div&gt;" vertex="1">
+          <mxGeometry height="64" width="300" y="26" as="geometry" />
         </mxCell>
         <mxCell id="eQeHEutrMqce5xfz2TAn-3" parent="eQeHEutrMqce5xfz2TAn-1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
-          <mxGeometry height="8" width="300" y="80" as="geometry" />
+          <mxGeometry height="8" width="300" y="90" as="geometry" />
         </mxCell>
         <mxCell id="eQeHEutrMqce5xfz2TAn-4" parent="eQeHEutrMqce5xfz2TAn-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ increment_score(int): void&lt;div&gt;+ pack(): dict&lt;/div&gt;" vertex="1">
-          <mxGeometry height="42" width="300" y="88" as="geometry" />
+          <mxGeometry height="42" width="300" y="98" as="geometry" />
         </mxCell>
         <mxCell id="eQeHEutrMqce5xfz2TAn-92" edge="1" parent="1" source="eQeHEutrMqce5xfz2TAn-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;endArrow=open;endFill=0;dashed=1;" target="eQeHEutrMqce5xfz2TAn-61">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="eQeHEutrMqce5xfz2TAn-5" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="Game" vertex="1">
-          <mxGeometry height="280" width="300" x="20" y="-90" as="geometry" />
+          <mxGeometry height="310" width="300" x="20" y="-90" as="geometry" />
         </mxCell>
         <mxCell id="eQeHEutrMqce5xfz2TAn-6" parent="eQeHEutrMqce5xfz2TAn-5" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="- players: dict[str : Player]&lt;div&gt;- current_match: Match&lt;/div&gt;&lt;div&gt;- screen_gui: PygameGUI&lt;/div&gt;&lt;div&gt;- clock: PygameClock&lt;/div&gt;&lt;div&gt;- data: dict[DynamicData, StaticData]&lt;/div&gt;&lt;div&gt;- match_dependencies: dict[str : Callable]&lt;/div&gt;&lt;div&gt;- game_state: str&lt;/div&gt;" vertex="1">
           <mxGeometry height="114" width="300" y="26" as="geometry" />
@@ -31,8 +31,8 @@
         <mxCell id="eQeHEutrMqce5xfz2TAn-7" parent="eQeHEutrMqce5xfz2TAn-5" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
           <mxGeometry height="8" width="300" y="140" as="geometry" />
         </mxCell>
-        <mxCell id="eQeHEutrMqce5xfz2TAn-8" parent="eQeHEutrMqce5xfz2TAn-5" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ get_player_from_id(str): Player | None&lt;div&gt;+ start_match(list[Player], dict): Match&lt;/div&gt;&lt;div&gt;+ get_data(str): DynamicData | StaticData&lt;/div&gt;&lt;div&gt;+ process_events(): void&lt;/div&gt;&lt;div&gt;+ save(): void&lt;/div&gt;&lt;div&gt;+ get_leaderboard(str): dict&lt;/div&gt;&lt;div&gt;+ register_player(str): Player&lt;/div&gt;&lt;div&gt;+ menu(): void&lt;/div&gt;" vertex="1">
-          <mxGeometry height="132" width="300" y="148" as="geometry" />
+        <mxCell id="eQeHEutrMqce5xfz2TAn-8" parent="eQeHEutrMqce5xfz2TAn-5" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="&lt;div&gt;+ load_players(): void&lt;/div&gt;+ get_player_from_id(str): Player | None&lt;div&gt;&lt;font&gt;&lt;span style=&quot;color: light-dark(rgb(255, 255, 255), rgb(250, 250, 250));&quot;&gt;+ get_player_by_name(str): Player | None&lt;/span&gt;&lt;br&gt;&lt;/font&gt;&lt;div&gt;&lt;div&gt;+ start_match(list[Player], dict): Match&lt;/div&gt;&lt;div&gt;+ get_data(str): DynamicData | StaticData&lt;/div&gt;&lt;div&gt;+ process_events(): void&lt;/div&gt;&lt;div&gt;+ save(): void&lt;/div&gt;&lt;div&gt;+ get_leaderboard(str): dict&lt;/div&gt;&lt;div&gt;+ register_player(str): Player&lt;/div&gt;&lt;div&gt;+ menu(): void&lt;/div&gt;&lt;div&gt;+ pack_players(): dict&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="162" width="300" y="148" as="geometry" />
         </mxCell>
         <mxCell id="eQeHEutrMqce5xfz2TAn-20" edge="1" parent="1" source="eQeHEutrMqce5xfz2TAn-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;endArrow=diamondThin;endFill=1;" target="eQeHEutrMqce5xfz2TAn-5">
           <mxGeometry relative="1" as="geometry">
