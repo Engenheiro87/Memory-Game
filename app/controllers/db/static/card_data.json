@@ -1,0 +1,14 @@
+{
+    "normal":[
+        "python", 
+        "java", 
+        "javascript", 
+        "rust",
+        "lua",
+        "html",
+        "css",
+        "bash",
+        "php",
+        "cobol"
+    ]
+}

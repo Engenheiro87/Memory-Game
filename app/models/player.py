@@ -12,6 +12,10 @@ class Player:
     def username(self)->str:
         return self.__username;
 
+    @property
+    def user_id(self)->str:
+        return self.__user_id;
+
     def increment_score(self, increment:int):
         self.__score+=int(increment);
 
@@ -20,3 +24,6 @@ class Player:
             "username": self.__username,
             "total_score":self.__total_score
         };
+
+    def __str__(self)->str:
+        return self.__username;

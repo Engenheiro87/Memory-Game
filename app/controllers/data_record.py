@@ -41,7 +41,7 @@ class DataRecord(ABC):
         if not index in self.__data:
             return default;
         if function:
-            return function(self.__data[index]);
+            return function(deepcopy(self.__data[index]));
         try:
             return deepcopy(self.__data[index]);
         except:
