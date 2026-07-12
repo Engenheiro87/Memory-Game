@@ -1,11 +1,13 @@
 from app.controllers.data_record import DynamicData, StaticData;
+from app.controllers.pygame_gui import PygameGUI;
 from app.models.player import Player;
 from app.controllers.match import Match;
 from uuid import uuid4;
 import pygame;
 
 class Game:
-    WINDOW_DIMENSIONS = (800,800);
+    WINDOW_DIMENSIONS = (700,500);
+    FPS_TARGET = 30;
     def __init__(self):
 
         # Pygame initiation
@@ -20,14 +22,16 @@ class Game:
             "user_data":DynamicData("dynamic/user_data.json", self.pack_players),
             "card_data":StaticData("static/card_data.json")
         };
-        self.__screen_gui = None;
+        self.__screen_gui = PygameGUI(self.__window);
         self.__current_match = None;
         self.__match_dependencies = {
             "get_card_data":self.get_card_data
         };
         self.__game_state = "N/A";
+        self.__running = True;
 
         self.load_players();
+        self.run();
 
     # temporary property
 
@@ -38,6 +42,16 @@ class Game:
     @property
     def players(self):
         return self.__players;
+
+    def run(self):
+        self.__screen_gui.load_menu();
+        while self.__running:
+            self.process_events();
+            self.__screen_gui.draw_screen();
+            self.__clock.tick(Game.FPS_TARGET);
+        
+        print("pygame quit running.");
+        pygame.quit();
     
     def load_players(self):
         self.__players = {
@@ -74,7 +88,10 @@ class Game:
         return self.__data.get(data_name);
 
     def process_events(self):
-        pass;
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.__running = False;
+                break;
     
     def save(self):
         for data in self.__data.values():
