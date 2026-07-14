@@ -1,5 +1,5 @@
 from app.models.gui.color3 import Color3;
-from app.models.gui.guiobject import UICoordinates, GuiObject, TextLabel, ImageLabel;
+from app.models.gui.guiobject import UICoordinates, GuiObject, TextLabel, ImageLabel, InputBox;
 from uuid import uuid4;
 import pygame
 
@@ -73,8 +73,21 @@ class PygameGUI:
                 Color3.from_name("white"),
                 h5,
                 scaled=False
+            ),
+            "hint"
+        );
+
+        # player 1 name
+        self.add_object(
+            InputBox(
+                UICoordinates.from_scale(.25, .9),
+                UICoordinates.from_scale(.25, .1),
+                Color3.from_name("white"),
+                h5,
+                "Your name here.",
+                scaled=False
             )
-        )
+        );
 
     def add_object(self, object:GuiObject, id:str=lambda: str(uuid4())):
         self.__screen[id] = object;

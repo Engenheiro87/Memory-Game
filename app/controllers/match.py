@@ -19,6 +19,10 @@ class Match:
     __match_paused: bool = field(repr=False, init=False, default_factory=lambda: False);
 
     @property
+    def players(self):
+        return self.__players;
+
+    @property
     def flipped_card(self):
         return self.__flipped_card;
 
@@ -49,6 +53,9 @@ class Match:
 
     def flip_card(self, card_id:str):
         card = self.__board.get_card(card_id);
+        if not card:
+            return False;
+    
         card_flip = self.__board.flip_card(card);
         if card_flip == False: # card was hidden
             self.__flipped_card = None;
@@ -59,7 +66,7 @@ class Match:
                 self.__flipped_card = None;
             else:
                 self.__flipped_card = card;
-    #TODO: Test card flipping mechanics.
+        return True;
     
     def parse_matching(self, card:Card, flipped_card:Card)-> bool:
         if flipped_card: # there's a flipped card
@@ -78,7 +85,7 @@ class Match:
                 
                 new_thread = Thread(target=unmatched);
                 new_thread.start();
-                matched = False;
+                matched = False;                
             self.change_turns();
             print(f"Now it's {self.get_turn().username}'s turn.")
             return matched;
@@ -86,7 +93,7 @@ class Match:
     def apply_points(self, Player:Player=None):
         if not Player:
             Player = self.get_turn();
-        Player.increment_score(5);
+        Player.match_score+=5;
     
     def set_paused(self, paused:bool):
         self.__match_paused = paused;
@@ -95,7 +102,7 @@ class Match:
         return self.__players[self.__current_turn];
 
     def check_end(self)->bool:
-        if len(self.__matched_cards)==len(self.__board.cards):
+        if len(self.__board.matched_cards)==len(self.__board.cards):
             print("All cards have been matched.");
             self.set_paused(True);
             return True;
