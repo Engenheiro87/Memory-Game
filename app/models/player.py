@@ -17,11 +17,21 @@ class Player:
         return self.__user_id;
 
     @property
+    def total_score(self):
+        return self.__total_score;
+
+    @property
     def match_score(self)->int:
         return self.__match_score;
 
+    @match_score.setter
+    def match_score(self, new_value:int):
+        if type(new_value)!=int:
+            raise Exception(f"Attempt to add int to {type(new_value)}");
+        self.__match_score = new_value;
+
     def increment_score(self, increment:int):
-        self.__match_score+=int(increment);
+        self.__total_score+=int(increment);
 
     def pack(self)->dict:
         return {

@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field;
+from copy import deepcopy;
 from app.models.card import Card;
 
 @dataclass
@@ -9,8 +10,12 @@ class Board:
     __matched_cards:list[Card] = field(init=False, repr=False, default_factory=list);
 
     @property
-    def cards(self)->dict[Card]:
+    def cards(self)->dict[str:Card]:
         return self.__cards;
+
+    @property
+    def matched_cards(self)->list[Card]:
+        return deepcopy(self.__matched_cards);
     
     def shuffle_cards(self):
         pass;
