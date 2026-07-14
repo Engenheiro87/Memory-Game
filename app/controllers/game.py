@@ -53,8 +53,8 @@ Jogo da Memória:
 """);
             action1 = int(input("Digite um número: "));
             if action1 == 3:
-                # print("Salvando e saindo...");
-                # self.save();
+                print("Salvando e saindo...");
+                self.save();
                 print("Saindo...");
                 break;
             match action1:
@@ -170,7 +170,6 @@ Jogo da Memória:
                 break;
     
     def save(self):
-        return;
         for data in self.__data.values():
             if type(data) == DynamicData:
                 data.save();
@@ -184,7 +183,6 @@ Jogo da Memória:
             for player_id, player in self.__players.items()
         ]
         return sorted(user_list, key=lambda user:user.get("total_score", 0), reverse=True);
-        # return self.get_data("user_data").get_sorted();
 
     def register_player(self, username:str)->tuple[bool, str|Player]:
         existing = self.get_player_by_name(username);
