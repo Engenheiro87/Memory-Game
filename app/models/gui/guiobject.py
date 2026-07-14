@@ -1,4 +1,5 @@
 from app.models.gui.color3 import Color3;
+from dataclasses import dataclass, field;
 from abc import ABC, abstractmethod;
 import pygame;
 
@@ -27,9 +28,14 @@ class UICoordinates:
 
 
 class GuiObject(ABC):
-    def __init__(self, position:UICoordinates, size:UICoordinates):
+    def __init__(self, position:UICoordinates, size:UICoordinates, active=False):
         self.__position = position;
         self.__size = size;
+        self.__active = active;
+    
+    @property
+    def active(self):
+        return self.__active;
     
     @property
     def position(self):
@@ -40,10 +46,12 @@ class GuiObject(ABC):
         return self.__size;
 
     @property
+    @abstractmethod
     def surface(self):
         pass;
     
     @property
+    @abstractmethod
     def rect(self):
         pass;
 
@@ -57,7 +65,7 @@ class GuiObject(ABC):
 
 class TextLabel(GuiObject):
     def __init__(self, position:UICoordinates, size:UICoordinates, text:str, text_color:Color3, font:pygame.Font, scaled:bool=False):
-        super().__init__(position, size);
+        super().__init__(position, size, active=False);
         self.__text = text;
         self.__text_color = text_color;
         self.__font = font;
@@ -77,6 +85,14 @@ class TextLabel(GuiObject):
     def get_rect(self):
         return self.__surface.get_rect();
 
+    def overwrite(self, new_text:str):
+        self.__text = new_text;
+        self.reload();
+
+    def reload(self):
+        self.__surface = self.get_surface();
+        self.__rectangle = self.get_rect();
+
     def get_surface(self):
         surface = self.__font.render(
             self.__text,
@@ -92,7 +108,7 @@ class TextLabel(GuiObject):
 
 class ImageLabel(GuiObject):
     def __init__(self, position, size, file_path:str):
-        super().__init__(position, size);
+        super().__init__(position, size, active=False);
         self.__file_path = file_path;
         self.__surface = self.get_surface();
         self.__rect = self.get_rect();
@@ -120,3 +136,59 @@ class ImageLabel(GuiObject):
     def set_transparency(self, transparency:float): # [0 is opaque] and [1 is transparent]
         self.surface.set_alpha(255-int(min(max(transparency, 0), 1)*255))
         return self;
+
+class InputBox(GuiObject):
+    def __init__(self, position, size, color:Color3, font:pygame.Font, place_holder:str="", max_char:int=-1, scaled=False):
+        super().__init__(position, size, active=True)
+        self.__place_holder = place_holder;
+        self.__text = "";
+        self.__focused = False;
+        self.__max_char = max_char;
+        self.__text_label = TextLabel(
+            position, 
+            size, 
+            self.__place_holder, 
+            color,
+            font,
+            scaled
+        );
+    
+    @property
+    def surface(self):
+        return self.__text_label.surface;
+
+    @property
+    def rect(self):
+        return self.__text_label.rect;
+
+    @property
+    def focused(self):
+        return self.__focused;
+
+    def overwrite(self, new_text:str):
+        self.__text = new_text;
+        self.__text_label.overwrite(new_text);
+
+    def get_surface(self):
+        return self.__text_label.surface;
+
+    def get_rect(self):
+        return self.__text_label.rect;
+
+    def get_text(self)->str:
+        return self.__text;
+
+    def backspace(self):
+        self.__text = self.__text[0:max(len(self.__text)-1, 0)];
+
+    def add_char(self, new_char:str):
+        max_char = self.__max_char;
+        if max_char == -1 or len(self.__text)<max_char:
+            self.__text +=new_char;
+
+    def focus(self):
+        self.__focused = True;
+
+    def unfocus(self):
+        self.__focused = False;
+
