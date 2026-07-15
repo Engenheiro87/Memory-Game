@@ -1,13 +1,16 @@
 from app.models.gui.color3 import Color3;
-from app.models.gui.guiobject import UICoordinates, GuiObject, TextLabel, ImageLabel, InputBox;
+from app.models.gui.guiobject import UICoordinates, UIObject, UITextBox, UILabel, UIImageLabel, UIButton;
 from uuid import uuid4;
+import app.models.gui.gui_screens as GUI;
 import pygame
+import pygame_gui;
 
 class PygameGUI:
-    def __init__(self, window, ):
+    def __init__(self, window, dimensions:tuple[int, int], gui_manager:pygame_gui.UIManager):
         self.__window = window;
 
-        self.__screen = {};
+        self.__manager = gui_manager;
+
         self.__focused_input = None;
         self.__fonts = {
             "h1":pygame.font.Font(
@@ -23,73 +26,51 @@ class PygameGUI:
                 25
             )
         };
-
+        self.routes = {
+            "menu":self.load_menu,
+            "game":self.load_game
+        };
+        self.__screen_dependencies = {
+            "add_object":self.add_object
+        };
+    
     def draw_screen(self):
         self.fill_background(
             Color3(88, 48, 112)
         );
 
-        guiobject:GuiObject
-        for guiobject in self.__screen.values():
-            self.__window.blit(
-                guiobject.surface,
-                guiobject.rect
-            );
 
+        self.__manager.draw_ui(self.__window);
+        
         pygame.display.flip();
-
-    def load_menu(self):
+    
+    def load_screen(self, screen_name:str, *args):
         self.clear_screen();
-
-        # background image:
-        self.add_object(
-            ImageLabel(
-                UICoordinates.from_scale(.5,.5),
-                UICoordinates.from_scale(1,1),
-                "sunburst.png"
-            ).set_transparency(.8),
-            "background_image"
+        screen_route = self.routes.get(screen_name);
+        if not screen_route:
+            return;
+        if args:
+            return screen_route(*args);
+        else:
+            return screen_route();
+    
+    def load_menu(self):
+        GUI.MenuScreen(
+            self.__screen_dependencies,
+            self.__manager
         );
 
-        # title
-        h1 = self.__fonts['h1'];
-        h2 = self.__fonts['h2'];
-        h5 = self.__fonts['h5'];
-
-        self.add_object(
-            ImageLabel(
-                UICoordinates.from_scale(.5, .5),
-                UICoordinates(450,450),
-                "logo.png"
-            ).set_transparency(0),
-            "menu_logo"
+    def load_game(self, player_names:tuple[str]):
+        screen = GUI.GameScreen(
+            self.__screen_dependencies,
+            self.__manager,
+            player_names
         );
+        return {
+            "add_card":screen.add_card
+        }
 
-        self.add_object(
-            TextLabel(
-                UICoordinates.from_scale(.5, .8),
-                UICoordinates.from_scale(.4, .05),
-                "<- INSERT PLAYER NAMES TO START ->",
-                Color3.from_name("white"),
-                h5,
-                scaled=False
-            ),
-            "hint"
-        );
-
-        # player 1 name
-        self.add_object(
-            InputBox(
-                UICoordinates.from_scale(.25, .9),
-                UICoordinates.from_scale(.25, .1),
-                Color3.from_name("white"),
-                h5,
-                "Your name here.",
-                scaled=False
-            )
-        );
-
-    def add_object(self, object:GuiObject, id:str=lambda: str(uuid4())):
+    def add_object(self, object:UIObject, id:str=lambda: str(uuid4())):
         self.__screen[id] = object;
         return id;
     
@@ -98,3 +79,4 @@ class PygameGUI:
 
     def clear_screen(self):
         self.__screen = {};
+        self.__manager.clear_and_reset();

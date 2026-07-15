@@ -2,6 +2,7 @@ from app.models.gui.color3 import Color3;
 from dataclasses import dataclass, field;
 from abc import ABC, abstractmethod;
 import pygame;
+import pygame_gui;
 
 SCREEN_DIMENSIONS = (700, 500);
 
@@ -9,6 +10,14 @@ class UICoordinates:
     def __init__(self, x:int, y:int):
         self.__x = x;
         self.__y = y;
+    
+    @property
+    def x(self)->int:
+        return self.__x;
+
+    @property
+    def y(self)->int:
+        return self.__y;
 
     def get_offset(self)->tuple[int, int]:
         return (self.__x, self.__y);
@@ -63,49 +72,6 @@ class GuiObject(ABC):
     def get_surface(self):
         pass;
 
-class TextLabel(GuiObject):
-    def __init__(self, position:UICoordinates, size:UICoordinates, text:str, text_color:Color3, font:pygame.Font, scaled:bool=False):
-        super().__init__(position, size, active=False);
-        self.__text = text;
-        self.__text_color = text_color;
-        self.__font = font;
-        self.__scaled = scaled;
-        self.__surface = self.get_surface();
-        self.__rectangle = self.get_rect();
-        self.__rectangle.center = self.position.get_offset();
-
-    @property
-    def surface(self):
-        return self.__surface;
-
-    @property
-    def rect(self):
-        return self.__rectangle;
-
-    def get_rect(self):
-        return self.__surface.get_rect();
-
-    def overwrite(self, new_text:str):
-        self.__text = new_text;
-        self.reload();
-
-    def reload(self):
-        self.__surface = self.get_surface();
-        self.__rectangle = self.get_rect();
-
-    def get_surface(self):
-        surface = self.__font.render(
-            self.__text,
-            True,
-            self.__text_color.get_rgb(),
-        ).convert_alpha();
-        if not self.__scaled:
-            return surface;
-        return pygame.transform.scale(
-            surface,
-            self.size.get_offset()
-        );
-
 class ImageLabel(GuiObject):
     def __init__(self, position, size, file_path:str):
         super().__init__(position, size, active=False);
@@ -137,58 +103,108 @@ class ImageLabel(GuiObject):
         self.surface.set_alpha(255-int(min(max(transparency, 0), 1)*255))
         return self;
 
-class InputBox(GuiObject):
-    def __init__(self, position, size, color:Color3, font:pygame.Font, place_holder:str="", max_char:int=-1, scaled=False):
-        super().__init__(position, size, active=True)
-        self.__place_holder = place_holder;
-        self.__text = "";
-        self.__focused = False;
-        self.__max_char = max_char;
-        self.__text_label = TextLabel(
-            position, 
-            size, 
-            self.__place_holder, 
-            color,
-            font,
-            scaled
+class UIObject(ABC):
+    def __init__(self, position:UICoordinates, size:UICoordinates, manager:pygame_gui.UIManager, name:str=None):
+        self.__manager = manager;
+        self.__rect = pygame.Rect(
+            position.x - size.x/2,
+            position.y-size.y/2,
+            size.x,
+            size.y
         );
+        self.__name = name;
+        self.__position = position;
+        self.__size = size;
     
     @property
-    def surface(self):
-        return self.__text_label.surface;
+    def position(self):
+        return self.__position;
+
+    @property
+    def size(self):
+        return self.__size;
 
     @property
     def rect(self):
-        return self.__text_label.rect;
+        return self.__rect;
 
     @property
-    def focused(self):
-        return self.__focused;
+    def name(self):
+        return self.__name;
 
-    def overwrite(self, new_text:str):
-        self.__text = new_text;
-        self.__text_label.overwrite(new_text);
+    @property
+    def manager(self):
+        return self.__manager;
 
+    @abstractmethod
+    def render_format(self):
+        pass;
+
+
+class UITextBox(UIObject):
+    def __init__(self, position:UICoordinates, size:UICoordinates, manager:pygame_gui.UIManager, name:str=None):
+        super().__init__(position, size, manager, name);
+        self.__format = self.render_format();
+
+    def render_format(self):
+        return pygame_gui.elements.UITextEntryLine(
+            relative_rect=self.rect,
+            manager=self.manager,
+            object_id=self.name
+        );
+
+
+class UILabel(UIObject):
+    def __init__(self, position, size, text:str, manager:pygame_gui.UIManager, name = None):
+        super().__init__(position, size, name);
+        self.__text = text;
+        self.__format = self.render_format();
+
+    def render_format(self):
+        return pygame_gui.elements.UILabel(
+            relative_rect=self.rect,
+            text = self.__text,
+            manager = self.manager
+        );
+
+class UIImageLabel(UIObject):
+    def __init__(self, position, size, manager, img_adress:str, name = None):
+        super().__init__(position, size, manager, name)
+        self.__img_adress = img_adress;
+
+        self.__format = self.render_format();
+    
     def get_surface(self):
-        return self.__text_label.surface;
+        surface = pygame.image.load(
+            "app/static/img/"+self.__img_adress
+        ).convert_alpha();
+        return pygame.transform.scale(surface, self.size.get_offset());
 
-    def get_rect(self):
-        return self.__text_label.rect;
 
-    def get_text(self)->str:
-        return self.__text;
+    def render_format(self):
+        return pygame_gui.elements.UIImage(
+            relative_rect=self.rect,
+            image_surface=self.get_surface(),
+            manager=self.manager,
+            object_id=self.name
+        );
 
-    def backspace(self):
-        self.__text = self.__text[0:max(len(self.__text)-1, 0)];
+class UIButton(UIObject):
+    def __init__(self, position, size, manager, text:str="", img_adress:str=None, name = None):
+        super().__init__(position, size, manager, name);
+        self.__text = text;
+        self.__img_adress = img_adress;
+        self.__format = self.render_format();
 
-    def add_char(self, new_char:str):
-        max_char = self.__max_char;
-        if max_char == -1 or len(self.__text)<max_char:
-            self.__text +=new_char;
-
-    def focus(self):
-        self.__focused = True;
-
-    def unfocus(self):
-        self.__focused = False;
-
+    def render_format(self):
+        button = pygame_gui.elements.UIButton(
+            relative_rect=self.rect,
+            text=self.__text,
+            manager=self.manager,
+            object_id=self.name,
+        )
+        if self.__img_adress:
+            button.set_image(
+                pygame.image.load("app/static/img/"+self.__img_adress)
+                .convert_alpha()
+            );

@@ -4,6 +4,7 @@ from app.models.player import Player;
 from app.controllers.match import Match;
 from uuid import uuid4;
 import pygame;
+import pygame_gui;
 
 class Game:
     WINDOW_DIMENSIONS = (700,500);
@@ -11,10 +12,11 @@ class Game:
     def __init__(self):
 
         # Pygame initiation
-        # pygame.init();
-        # self.__window = pygame.display.set_mode(Game.WINDOW_DIMENSIONS);
-        # pygame.display.set_caption("Memory Code");
-        # self.__clock = pygame.time.Clock();
+        pygame.init();
+        self.__window = pygame.display.set_mode(Game.WINDOW_DIMENSIONS);
+        pygame.display.set_caption("Memory Code");
+        self.__clock = pygame.time.Clock();
+        self.__manager = pygame_gui.UIManager(Game.WINDOW_DIMENSIONS);
 
         # attributes
         self.__players = {};
@@ -22,12 +24,17 @@ class Game:
             "user_data":DynamicData("dynamic/user_data.json", self.pack_players),
             "card_data":StaticData("static/card_data.json")
         };
-        # self.__screen_gui = PygameGUI(self.__window);
+        self.__screen_gui = PygameGUI(
+            self.__window, 
+            Game.WINDOW_DIMENSIONS,
+            self.__manager
+        );
         self.__current_match = None;
         self.__match_dependencies = {
             "get_card_data":self.get_card_data
         };
         self.__game_state = "N/A";
+        self.__logged_players = {};
         self.__running = True;
 
         self.load_players();
@@ -44,90 +51,20 @@ class Game:
         return self.__players;
 
     def run(self):
+        self.__screen_gui.load_screen("menu");
         while self.__running:
-            print(f"""
-Jogo da Memória:
-1 - Jogar
-2 - Pódio
-3 - Sair.
-""");
-            action1 = int(input("Digite um número: "));
-            if action1 == 3:
-                print("Salvando e saindo...");
-                self.save();
-                print("Saindo...");
-                break;
-            match action1:
-                case 2:
-                    leaderboard = self.get_leaderboard();
-                    print("\nLEADERBOARD:");
-                    for index, player_data in enumerate(leaderboard, start=1):
-                        print("------------------------------------------");
-                        print(f"{index}. {player_data.get("username", "???")} -- {player_data.get("total_score", "unknown")}");
-                case 1:
-                    players = [];
 
-                    for i in range(2):
-                        while True:
-                            name = input(f"Nome jogador {i+1}: ");
-                            player = self.get_player_by_name(name);
-                            if not player:
-                                print("\nJogador não registrado no sistema. Criando novo jogador...");
-                                while True:
-                                    sucess, player_error = self.register_player(name);
-                                    if not sucess or type(player_error)!=Player:
-                                        print("Erro:", player_error);
-                                        continue;
-                                    print("Sucesso.");
-                                    player = player_error;
-                                    break;
-                            elif player in players:
-                                print(f"Jogador \"{player.username}\" já logado. Por favor tente outro.");
-                                continue;
-                            print(f"Jogador \"{player.username}\" logado.");
-                            players.append(player);
-                            break;
-                    print("Jogadores logados:");
-                    player:Player
-                    for player in players:
-                        print(player.username);
-    
-                    self.start_match(*players);
-                    self.menu_match();
-                    self.__current_match = None;
-        # self.__screen_gui.load_menu();
-        # while self.__running:
-        #     self.process_events();
-        #     self.__screen_gui.draw_screen();
-        #     self.__clock.tick(Game.FPS_TARGET);
+            UI_REFRESH_RATE = self.__clock.tick(Game.FPS_TARGET)/1000;
+
+            self.process_events();
+
+            self.__manager.update(UI_REFRESH_RATE);
+
+            self.__screen_gui.draw_screen();
+
         
-        # print("pygame quit running.");
-        # pygame.quit();
-
-    def menu_match(self):
-        current_match = self.__current_match;
-        while not current_match.check_end():
-            action = input("Next action | ");
-            if action == "points":
-                print("POINTS:");
-                for player in current_match.players:
-                    print(f"{player.username} .. {player.match_score}");
-            elif action == "cards":
-                for card_id, card in current_match.board.cards.items():
-                    print(f"{card_id} = {card.img} FLIPPED = {card.flipped}");
-            elif action == "flip":
-                card_id = input("Cole o ID da carta: ");
-                result = current_match.flip_card(card_id);
-                while not result:
-                    card_id = input("Não deu certo. Cole outro ID: ");
-                    result = current_match.flip_card(card_id);
-                print("Sucesso.");
-        winner = current_match.get_winner();
-        for player in current_match.players:
-            if player == winner:
-                player.increment_score(player.match_score);
-            player.match_score = 0;
-        print(f"\nA partida acabou. Vencedor: {winner}")
+        print("pygame quit running.");
+        pygame.quit();
 
     def load_players(self):
         self.__players = {
@@ -152,6 +89,12 @@ Jogo da Memória:
     def start_match(self, *players):
         if self.__current_match:
             return;
+        names = [player.username for player in players];
+        ui_dependencies = self.__screen_gui.load_screen(
+            "game",
+            names
+        );
+        ui_dependencies["add_card"]("card_id", "idk");
         match = Match(
             [*players],
             (2, 3),
@@ -165,9 +108,42 @@ Jogo da Memória:
 
     def process_events(self):
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.__running = False;
-                break;
+            event_type = event.type;
+            match event_type:
+                case pygame.QUIT:
+                    self.__running = False;
+                    break;
+                case pygame_gui.UI_TEXT_ENTRY_FINISHED:
+                    object_id = event.ui_object_id;
+                    if "#playerbox" in object_id:
+                        self.log_player(
+                            int(object_id[10:]),
+                            event.text
+                        );
+                case pygame_gui.UI_BUTTON_PRESSED:
+                    if event.ui_object_id == "#start":
+                        players = self.get_logged_players();
+                        if players:
+                            self.start_match(*players) 
+
+            self.__manager.process_events(event);
+    
+    def get_logged_players(self)->tuple[Player]|False:
+        parsed_players = [];
+        for player_number, player_name in self.__logged_players.items():
+            if player_name.strip()=="":
+                return False;
+            player = self.get_player_by_name(player_name);
+            if not player:
+                self.register_player(player_name);
+                return self.get_logged_players();
+            if player in parsed_players:
+                return False;
+            parsed_players.append(player);
+        return parsed_players;
+
+    def log_player(self, player_number:int, player_name:str):
+        self.__logged_players[player_number] = player_name;
     
     def save(self):
         for data in self.__data.values():
